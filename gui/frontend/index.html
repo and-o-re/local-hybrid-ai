@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HYBRID_OS // TERMINAL DE CONTROLE PIXEL-CRT</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <!-- Overlay CRT Scanlines & Vignette -->
+  <div class="crt-scanlines" aria-hidden="true"></div>
+  <div class="crt-vignette" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <!-- BARRA LATERAL RETRO PIXEL -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="pixel-avatar" aria-label="Pixel AI Core">
+          <!-- Sprite 8x8 em CSS Box-Shadow / SVG Pixel Art Nativo -->
+          <svg viewBox="0 0 16 16" width="44" height="44" shape-rendering="crispEdges">
+            <rect width="16" height="16" fill="#041208"/>
+            <rect x="3" y="2" width="10" height="2" fill="#00ff66"/>
+            <rect x="2" y="4" width="12" height="8" fill="#0b3b19"/>
+            <rect x="2" y="4" width="2" height="8" fill="#00ff66"/>
+            <rect x="12" y="4" width="2" height="8" fill="#00ff66"/>
+            <rect x="3" y="12" width="10" height="2" fill="#00ff66"/>
+            <!-- Olhos Pixel -->
+            <rect x="5" y="6" width="2" height="3" fill="#39ff14"/>
+            <rect x="9" y="6" width="2" height="3" fill="#39ff14"/>
+            <!-- Boca / Terminal -->
+            <rect x="5" y="10" width="6" height="1" fill="#00ff66"/>
+            <!-- Antena -->
+            <rect x="7" y="0" width="2" height="2" fill="#39ff14"/>
+          </svg>
+        </div>
+        <div>
+          <h1>HYBRID_OS v1.0</h1>
+          <span class="subtitle">[CÓRTEX LOCAL • RTX 4050]</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-btn active" data-tab="tab-hardware">
+          <span class="px-icon">[#]</span> 01. TELEMETRIA & VRAM
+        </button>
+        <button class="nav-btn" data-tab="tab-folders">
+          <span class="px-icon">[D]</span> 02. DIRETÓRIOS & VAULT
+        </button>
+        <button class="nav-btn" data-tab="tab-credentials">
+          <span class="px-icon">[K]</span> 03. CHAVES & QR BRIDGE
+        </button>
+        <button class="nav-btn" data-tab="tab-persona">
+          <span class="px-icon">[P]</span> 04. PERSONA.MD (CÓRTEX)
+        </button>
+        <button class="nav-btn" data-tab="tab-console">
+          <span class="px-icon">[&gt;]</span> 05. TERMINAL DE COMANDO
+        </button>
+      </nav>
+
+      <!-- BOTÃO DE EMERGÊNCIA MODO ESTRITAMENTE OFFLINE -->
+      <div class="emergency-card" id="emergency-box">
+        <div class="emergency-header">
+          <span class="pulse-dot" id="offline-dot"></span>
+          <strong id="offline-label">MODO HÍBRIDO ATIVO</strong>
+        </div>
+        <p class="emergency-desc">
+          KILL-SWITCH DE REDE EXTERNA (DISCORD / GOOGLE / WPP). MANTÉM OPERAÇÃO 100% LOCAL.
+        </p>
+        <button id="btn-emergency-offline" class="btn-emergency">
+          [!] ATIVAR KILL-SWITCH OFFLINE
+        </button>
+      </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h2 id="page-title">01. TELEMETRIA &amp; VRAM [RTX 4050]</h2>
+          <p class="topbar-meta" id="realtime-clock">RELÓGIO DO SISTEMA: SINCRONIZANDO...</p>
+        </div>
+        <div class="badges">
+          <span class="badge" id="badge-ollama">OLLAMA: VERIFICANDO...</span>
+          <span class="badge badge-ctx">CTX: 4096 | KEEP_ALIVE: 5M</span>
+        </div>
+      </header>
+
+      <!-- ABA 1: HARDWARE & VRAM -->
+      <section class="tab-panel active" id="tab-hardware">
+        <div class="cards-grid">
+          <!-- Card GPU RTX 4050 -->
+          <div class="card">
+            <div class="card-header">
+              <h3>[GPU] NVIDIA RTX 4050 // LIMITE 6GB VRAM</h3>
+              <span class="tag" id="gpu-temp">-- °C</span>
+            </div>
+            <div class="metric-big" id="vram-numbers">-- / -- MiB</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="vram-bar" style="width: 0%"></div>
+            </div>
+            <div class="metric-sub" id="vram-details">
+              VRAM OLLAMA: -- MiB | CARGA GPU: --%
+            </div>
+          </div>
+
+          <!-- Card RAM DDR4 -->
+          <div class="card">
+            <div class="card-header">
+              <h3>[RAM] MEMÓRIA DO SISTEMA // 16GB DDR4</h3>
+              <span class="tag" id="ram-pct">--%</span>
+            </div>
+            <div class="metric-big" id="ram-numbers">-- / -- GB</div>
+            <div class="progress-bar">
+              <div class="progress-fill progress-cyan" id="ram-bar" style="width: 0%"></div>
+            </div>
+            <div class="metric-sub" id="disk-details">
+              SSD LIVRE: -- GB
+            </div>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <!-- Modelos Carregados na VRAM -->
+          <div class="card">
+            <div class="card-header">
+              <h3>[CUDA] MODELOS ALOCADOS NO OLLAMA</h3>
+              <button class="btn-secondary btn-sm" id="btn-refresh-telemetry">[ATUALIZAR]</button>
+            </div>
+            <div id="ollama-models-list" class="models-list">
+              LENDO REGISTRADORES DA VRAM...
+            </div>
+          </div>
+
+          <!-- Cache Offline SQLite -->
+          <div class="card">
+            <div class="card-header">
+              <h3>[DB] CACHE SQLITE &amp; VETORES CHROMADB</h3>
+              <button class="btn-secondary btn-sm" id="btn-reindex-rag">[INDEXAR VAULT RAG]</button>
+            </div>
+            <div class="db-stats-grid" id="db-stats-grid">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 2: SELETOR DE PASTAS (OBSIDIAN & CÓDIGO) -->
+      <section class="tab-panel" id="tab-folders">
+        <div class="card">
+          <h3>[FRONTEIRAS] VAULT OBSIDIAN &amp; SANDBOX DE CÓDIGO</h3>
+          <p class="muted">
+            &gt; No <strong>OBSIDIAN_VAULT_PATH</strong> a IA opera com escrita autônoma (`[[wikilinks]]`, YAML, Diários).<br/>
+            &gt; Fora do Vault, apenas pastas em <strong>ALLOWED_CODE_DIRS</strong> aceitam patch <em>Search &amp; Replace</em> com backup `.bak`.
+          </p>
+
+          <div class="form-group">
+            <label>CAMINHO DO VAULT OBSIDIAN (<code>OBSIDIAN_VAULT_PATH</code>)</label>
+            <div class="input-row">
+              <input type="text" id="input-vault-path" placeholder="./obsidian_vault" />
+              <button class="btn-secondary" id="btn-browse-vault">[EXPLORAR...]</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>DIRETÓRIOS DE CÓDIGO AUTORIZADOS (<code>ALLOWED_CODE_DIRS</code> — CSV)</label>
+            <div class="input-row">
+              <input type="text" id="input-code-dirs" placeholder="./,~/Projects" />
+              <button class="btn-secondary" id="btn-browse-code">[+ PASTA...]</button>
+            </div>
+          </div>
+
+          <!-- Navegador Visual de Pastas Local -->
+          <div id="folder-browser-modal" class="folder-browser hidden">
+            <div class="folder-browser-header">
+              <strong id="browser-current-path">~</strong>
+              <div>
+                <button class="btn-secondary btn-sm" id="btn-browser-up">[..] SUBIR</button>
+                <button class="btn-primary btn-sm" id="btn-browser-select">[OK] SELECIONAR</button>
+                <button class="btn-secondary btn-sm" id="btn-browser-close">[X]</button>
+              </div>
+            </div>
+            <div class="folder-list" id="browser-folder-list"></div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn-primary" id="btn-save-directories">[GRAVAR DIRETÓRIOS NO .ENV]</button>
+            <span id="dir-save-feedback" class="feedback-msg"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 3: GERENCIADOR DE CREDENCIAIS VISUAIS -->
+      <section class="tab-panel" id="tab-credentials">
+        <div class="cards-grid">
+          <div class="card">
+            <h3>[TOKENS] DISCORD BOT &amp; GOOGLE OAUTH2</h3>
+            <p class="muted">&gt; Chaves armazenadas localmente em disco (`.env`). Zero telemetria externa.</p>
+
+            <div class="form-group">
+              <label>DISCORD BOT TOKEN <span id="discord-badge" class="tag"></span></label>
+              <input type="password" id="input-discord-token" placeholder="INSIRA NOVO TOKEN..." />
+            </div>
+
+            <div class="form-group">
+              <label>DISCORD GUILD / SERVER ID</label>
+              <input type="text" id="input-discord-guild" placeholder="EX: 1092837465..." />
+            </div>
+
+            <div class="form-group">
+              <label>GOOGLE OAUTH2 CLIENT ID <span id="google-badge" class="tag"></span></label>
+              <input type="text" id="input-google-id" placeholder="client-id.apps.googleusercontent.com" />
+            </div>
+
+            <div class="form-group">
+              <label>GOOGLE OAUTH2 CLIENT SECRET</label>
+              <input type="password" id="input-google-secret" placeholder="GOCSPX-..." />
+            </div>
+
+            <div class="actions-row">
+              <button class="btn-primary" id="btn-save-credentials">[SALVAR CREDENCIAIS]</button>
+              <span id="cred-save-feedback" class="feedback-msg"></span>
+            </div>
+          </div>
+
+          <!-- QR Code do WhatsApp -->
+          <div class="card">
+            <h3>[QR MATRIX] PAREAMENTO WHATSAPP BRIDGE</h3>
+            <p class="muted">&gt; Escaneie a matriz pixelada abaixo para sincronizar mensagens no SQLite local.</p>
+
+            <div class="form-group">
+              <label>PORTA LOCAL DO BRIDGE WHATSAPP</label>
+              <input type="text" id="input-wpp-port" value="3001" />
+            </div>
+
+            <div class="qr-container" id="wpp-qr-box">
+              <canvas id="qr-canvas" width="189" height="189"></canvas>
+              <p id="wpp-qr-status" class="muted">AGUARDANDO GERAÇÃO DE MATRIZ QR...</p>
+            </div>
+
+            <button class="btn-secondary" id="btn-generate-qr">[GERAR MATRIZ QR CODE]</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>[SYNC WORKERS] DISCORD • GMAIL • GOOGLE DRIVE • WHATSAPP</h3>
+            <button class="btn-primary btn-sm" id="btn-run-sync-all">[SINCRONIZAR TODOS AGORA]</button>
+          </div>
+          <div id="workers-logs-list" class="models-list">
+            AGUARDANDO EXECUÇÃO DOS WORKERS...
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 4: PERSONA MODULAR -->
+      <section class="tab-panel" id="tab-persona">
+        <div class="card">
+          <h3>[CÓRTEX] FILTRO DE PERSONALIDADE (<code>/00_Persona/personalidade_principal.md</code>)</h3>
+          <p class="muted">
+            &gt; Edite o arquivo mestre da identidade no Obsidian. Recarregamento dinâmico por `mtime` sem interferir nas chamadas determinísticas de ferramentas.
+          </p>
+          <textarea id="textarea-persona" rows="16"></textarea>
+          <div class="actions-row">
+            <button class="btn-primary" id="btn-save-persona">[GRAVAR PERSONALIDADE NO VAULT]</button>
+            <span id="persona-save-feedback" class="feedback-msg"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 5: CONSOLE RÁPIDO COM A IA -->
+      <section class="tab-panel" id="tab-console">
+        <div class="card chat-card">
+          <h3>[&gt;_] TERMINAL INTERATIVO // QWEN2.5:7B-INSTRUCT-Q4_K_M</h3>
+          <div id="chat-log" class="chat-log">
+            <div class="chat-bubble assistant">
+              [SISTEMA INICIADO] Córtex Obsidian, SQLite Read-Only e acelerador CUDA operacionais. Aguardando instruções...
+            </div>
+          </div>
+          <div class="input-row">
+            <input type="text" id="input-chat-prompt" placeholder="DIGITE UM COMANDO, RELATÓRIO SQL OU NOTA OBSIDIAN..." />
+            <button class="btn-primary" id="btn-send-chat">[EXECUTAR]</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
